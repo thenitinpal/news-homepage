@@ -18,6 +18,7 @@ import { ArticleFormPage } from "./pages/admin/ArticleFormPage";
 import { AdsDashboardPage } from "./pages/admin/AdsDashboardPage";
 import { AdFormPage } from "./pages/admin/AdFormPage";
 import { ContactMessagesPage } from "./pages/admin/ContactMessagesPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { RequireReader } from "./components/RequireReader";
 
@@ -111,6 +112,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );

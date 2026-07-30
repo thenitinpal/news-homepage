@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AD_PLACEMENTS, deleteAd, fetchAllAds, type SponsoredAd } from "../../lib/adsApi";
+import { SEO } from "../../components/SEO";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -57,6 +58,7 @@ export function AdsDashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <SEO title="Sponsored Ads" description="Manage Pal News sponsored ads." noindex />
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <Link to="/" className="text-xl font-black tracking-tight text-slate-900">

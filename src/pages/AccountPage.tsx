@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { ArticleCard } from "../components/ArticleCard";
+import { SEO } from "../components/SEO";
 import { categoryLabels, type Article, type Category } from "../data/articles";
 import { fetchArticles } from "../lib/articlesApi";
 import { fetchSavedArticleIds } from "../lib/savedArticlesApi";
@@ -91,6 +92,7 @@ export function AccountPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <SEO title="My Account" description="Manage your Pal News account." noindex />
       <Header />
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-6">

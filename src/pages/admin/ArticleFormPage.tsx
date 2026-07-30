@@ -8,6 +8,7 @@ import {
   type ArticleInput,
 } from "../../lib/articlesApi";
 import { categoryLabels, type Category } from "../../data/articles";
+import { SEO } from "../../components/SEO";
 
 const CATEGORIES = Object.keys(categoryLabels) as Category[];
 
@@ -99,6 +100,7 @@ export function ArticleFormPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <SEO title={isEditing ? "Edit Article" : "New Article"} description="Manage Pal News articles." noindex />
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
           <Link to="/" className="text-xl font-black tracking-tight text-slate-900">

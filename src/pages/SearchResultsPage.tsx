@@ -2,6 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { ArticleCard } from "../components/ArticleCard";
+import { SEO } from "../components/SEO";
 import { useArticleSearch } from "../hooks/useArticleSearch";
 
 export function SearchResultsPage() {
@@ -11,6 +12,7 @@ export function SearchResultsPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <SEO title={`Search: ${query}`} description={`Search results for "${query}" on Pal News.`} noindex />
       <Header />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">

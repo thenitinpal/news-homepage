@@ -5,6 +5,7 @@ import { Hero } from "../components/Hero";
 import { CategorySection } from "../components/CategorySection";
 import { Sidebar } from "../components/Sidebar";
 import { Footer } from "../components/Footer";
+import { SEO, StructuredData } from "../components/SEO";
 import { categoryLabels, type Article } from "../data/articles";
 import {
   fetchArticles,
@@ -58,6 +59,20 @@ export function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <SEO
+        title="Latest News, Breaking Headlines & Top Stories"
+        description="Pal News brings you accurate, timely coverage across India, world affairs, business, technology, sports, entertainment, and more."
+        image={featured.image}
+      />
+      <StructuredData
+        data={{
+          "@context": "https://schema.org",
+          "@type": "NewsMediaOrganization",
+          name: "Pal News",
+          url: window.location.origin,
+          logo: `${window.location.origin}/favicon.svg`,
+        }}
+      />
       <Header />
       <Ticker articles={[...trending, ...mostRead]} />
 

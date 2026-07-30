@@ -1,5 +1,6 @@
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { SEO } from "../components/SEO";
 
 const responsibilities = [
   "Setting editorial standards and policies",
@@ -58,6 +59,10 @@ function BulletList({ items }: { items: string[] }) {
 export function EditorialTeamPage() {
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <SEO
+        title="Editorial Team"
+        description="Meet the Pal News editorial team and learn about our editorial principles, fact-checking process, and corrections policy."
+      />
       <Header />
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">

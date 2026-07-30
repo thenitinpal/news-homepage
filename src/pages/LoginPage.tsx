@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
+import { SEO } from "../components/SEO";
 
 export function LoginPage() {
   const { session, loading, signIn } = useAuth();
@@ -31,6 +32,7 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+      <SEO title="Sign In" description="Sign in to your Pal News account to save articles, follow topics, and comment." />
       <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
         <Link to="/" className="text-xl font-black tracking-tight text-slate-900">
           Pal<span className="text-red-600">News</span>

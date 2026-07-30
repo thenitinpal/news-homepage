@@ -1,5 +1,6 @@
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { SEO } from "../components/SEO";
 import { AD_PLACEMENTS } from "../lib/adsApi";
 
 const whatWeNeed = [
@@ -47,6 +48,10 @@ function BulletList({ items }: { items: string[] }) {
 export function AdvertiseWithUsPage() {
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <SEO
+        title="Advertise With Us"
+        description="Reach Pal News readers with a sponsored banner ad. Learn about our ad formats, requirements, and how to get started."
+      />
       <Header />
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">

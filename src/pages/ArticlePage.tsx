@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { Sidebar } from "../components/Sidebar";
+import { SEO, StructuredData } from "../components/SEO";
 import { categoryLabels, type Article } from "../data/articles";
 import {
   fetchArticleById,
@@ -94,6 +95,36 @@ export function ArticlePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      {article && (
+        <>
+          <SEO
+            title={article.headline}
+            description={article.excerpt}
+            image={article.image}
+            type="article"
+            publishedTime={article.timestamp}
+          />
+          <StructuredData
+            data={{
+              "@context": "https://schema.org",
+              "@type": "NewsArticle",
+              headline: article.headline,
+              description: article.excerpt,
+              image: [article.image],
+              datePublished: article.timestamp,
+              dateModified: article.timestamp,
+              articleSection: categoryLabels[article.category],
+              author: { "@type": "Organization", name: "Pal News" },
+              publisher: {
+                "@type": "Organization",
+                name: "Pal News",
+                logo: { "@type": "ImageObject", url: `${window.location.origin}/favicon.svg` },
+              },
+              mainEntityOfPage: { "@type": "WebPage", "@id": window.location.href },
+            }}
+          />
+        </>
+      )}
       <Header />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
@@ -140,7 +171,7 @@ export function ArticlePage() {
 
               <img
                 src={article.image}
-                alt=""
+                alt={article.headline}
                 className="mt-6 aspect-[16/9] w-full rounded-xl object-cover"
               />
 

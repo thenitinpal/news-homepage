@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { SEO } from "../components/SEO";
 import { submitContactMessage } from "../lib/contactApi";
 
 export function ContactPage() {
@@ -27,6 +28,10 @@ export function ContactPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <SEO
+        title="Contact Us"
+        description="Get in touch with the Pal News team — questions, feedback, corrections, or story tips."
+      />
       <Header />
 
       <main className="mx-auto w-full max-w-xl flex-1 px-4 py-10 sm:px-6">

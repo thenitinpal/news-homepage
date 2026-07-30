@@ -1,5 +1,6 @@
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { SEO } from "../components/SEO";
 
 const coverageAreas = [
   "Breaking News",
@@ -48,6 +49,10 @@ const whyReaders = [
 export function WhoWeArePage() {
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <SEO
+        title="Who We Are"
+        description="Learn about Pal News, our mission, editorial values, and what we cover — brought to you by Pal Media."
+      />
       <Header />
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">

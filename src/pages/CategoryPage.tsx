@@ -5,6 +5,7 @@ import { Ticker } from "../components/Ticker";
 import { ArticleCard } from "../components/ArticleCard";
 import { Sidebar } from "../components/Sidebar";
 import { Footer } from "../components/Footer";
+import { SEO } from "../components/SEO";
 import { categoryLabels, type Article, type Category } from "../data/articles";
 import {
   fetchArticles,
@@ -35,6 +36,15 @@ export function CategoryPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <SEO
+        title={category ? `${categoryLabels[category]} News` : "Category not found"}
+        description={
+          category
+            ? `The latest ${categoryLabels[category]} news and headlines from Pal News.`
+            : "This category doesn't exist."
+        }
+        noindex={!category}
+      />
       <Header />
       <Ticker articles={[...trending, ...mostRead]} />
 

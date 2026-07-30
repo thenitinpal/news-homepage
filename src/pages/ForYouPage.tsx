@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { ArticleCard } from "../components/ArticleCard";
+import { SEO } from "../components/SEO";
 import type { Article } from "../data/articles";
 import { fetchArticles } from "../lib/articlesApi";
 import { useAuth } from "../context/AuthContext";
@@ -23,6 +24,7 @@ export function ForYouPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <SEO title="For You" description="Your personalized Pal News feed." noindex />
       <Header />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
