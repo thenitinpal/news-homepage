@@ -6,5 +6,9 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application"
+  },
+  "vars": {
+    "VITE_SUPABASE_URL": "https://usdctshyufekozrlcstk.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzZGN0c2h5dWZla296cmxjc3RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNDIwMjcsImV4cCI6MjEwMDgxODAyN30.K23-UdZG_jniEsgm6zwo7c-LXZ7i560holaWZYBELrQ"
   }
 }
