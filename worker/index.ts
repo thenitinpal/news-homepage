@@ -93,22 +93,7 @@ export default {
     }
 
     const userAgent = request.headers.get("user-agent") ?? "";
-    const isBot = BOT_PATTERN.test(userAgent);
-
-    if (url.searchParams.has("__debug")) {
-      return new Response(
-        JSON.stringify({
-          userAgent,
-          isBot,
-          hasSupabaseUrl: Boolean(env.VITE_SUPABASE_URL),
-          hasSupabaseKey: Boolean(env.VITE_SUPABASE_ANON_KEY),
-          pathname: url.pathname,
-        }),
-        { headers: { "content-type": "application/json" } },
-      );
-    }
-
-    if (isBot) {
+    if (BOT_PATTERN.test(userAgent)) {
       const botResponse = await handleBotRequest(url, env);
       if (botResponse) return botResponse;
     }
