@@ -1,7 +1,7 @@
-// Vercel Routing Middleware — see edge/botRender.ts for the shared rendering
-// logic also used by the Cloudflare Pages version (functions/_middleware.ts).
-import { next } from "@vercel/functions";
+// Cloudflare Pages Function — Cloudflare's equivalent of middleware.ts (Vercel).
+// See edge/botRender.ts for the shared rendering logic both versions use.
 import { createClient } from "@supabase/supabase-js";
+import type { PagesFunction } from "@cloudflare/workers-types";
 import {
   BOT_PATTERN,
   CATEGORY_LABELS,
@@ -10,22 +10,24 @@ import {
   renderCategoryPage,
   renderHomePage,
   type ArticleRow,
-} from "./edge/botRender";
+} from "../edge/botRender";
 
-export const config = {
-  matcher: ["/", "/article/:id*", "/category/:slug*"],
-};
+interface Env {
+  VITE_SUPABASE_URL?: string;
+  VITE_SUPABASE_ANON_KEY?: string;
+}
 
-export default async function middleware(request: Request) {
+export const onRequest: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
   const userAgent = request.headers.get("user-agent") ?? "";
   if (!BOT_PATTERN.test(userAgent)) {
-    return next();
+    return context.next();
   }
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+  const supabaseUrl = env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseAnonKey) {
-    return next();
+    return context.next();
   }
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
   const url = new URL(request.url);
@@ -38,7 +40,7 @@ export default async function middleware(request: Request) {
       .eq("id", articleMatch[1])
       .maybeSingle<ArticleRow>();
 
-    if (!article) return next();
+    if (!article) return context.next();
     return htmlResponse(renderArticlePage(article, url.toString()));
   }
 
@@ -46,7 +48,7 @@ export default async function middleware(request: Request) {
   if (categoryMatch) {
     const slug = categoryMatch[1];
     const label = CATEGORY_LABELS[slug];
-    if (!label) return next();
+    if (!label) return context.next();
 
     const { data: articles } = await supabase
       .from("articles")
@@ -68,5 +70,5 @@ export default async function middleware(request: Request) {
     return htmlResponse(renderHomePage(articles ?? [], url.origin));
   }
 
-  return next();
-}
+  return context.next();
+};
