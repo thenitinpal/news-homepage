@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import type { Article } from "../data/articles";
 import { categoryLabels } from "../data/articles";
 import { formatRelativeTime } from "../utils/time";
-import { stripLinks, truncateText } from "../utils/richText";
+import { stripFormatting, truncateText } from "../utils/richText";
 
 interface HeroProps {
   featured: Article;
@@ -26,7 +26,7 @@ export function Hero({ featured, secondary }: HeroProps) {
         <h1 className="mt-2 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl">
           {featured.headline}
         </h1>
-        <p className="mt-2 text-slate-600">{truncateText(stripLinks(featured.excerpt), 200)}</p>
+        <p className="mt-2 text-slate-600">{truncateText(stripFormatting(featured.excerpt), 200)}</p>
         <p className="mt-2 text-sm text-slate-400">{formatRelativeTime(featured.timestamp)}</p>
       </Link>
 

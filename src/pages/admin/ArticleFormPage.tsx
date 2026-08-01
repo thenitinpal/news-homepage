@@ -81,15 +81,69 @@ export function ArticleFormPage() {
     }
   }
 
+  /** Wraps the current selection (or a placeholder) with `before`/`after`, e.g. `_` / `_` for underline. */
+  function wrapSelection(before: string, after: string, placeholder: string) {
+    const textarea = excerptRef.current;
+    const value = form.excerpt;
+    const start = textarea?.selectionStart ?? value.length;
+    const end = textarea?.selectionEnd ?? value.length;
+    const content = value.slice(start, end) || placeholder;
+    const inserted = `${before}${content}${after}`;
+
+    setForm((prev) => ({ ...prev, excerpt: value.slice(0, start) + inserted + value.slice(end) }));
+
+    requestAnimationFrame(() => {
+      if (!textarea) return;
+      textarea.focus();
+      textarea.setSelectionRange(start + before.length, start + before.length + content.length);
+    });
+  }
+
+  /** Inserts the selection (or a placeholder) as its own line prefixed with `prefix`, e.g. "# " for a heading. */
+  function insertBlock(prefix: string, placeholder: string) {
+    const textarea = excerptRef.current;
+    const value = form.excerpt;
+    const start = textarea?.selectionStart ?? value.length;
+    const end = textarea?.selectionEnd ?? value.length;
+    const content = value.slice(start, end) || placeholder;
+    const needsLeadingNewline = start > 0 && value[start - 1] !== "\n";
+    const inserted = `${needsLeadingNewline ? "\n" : ""}${prefix}${content}\n`;
+
+    setForm((prev) => ({ ...prev, excerpt: value.slice(0, start) + inserted + value.slice(end) }));
+
+    requestAnimationFrame(() => {
+      if (!textarea) return;
+      textarea.focus();
+      const selStart = start + (needsLeadingNewline ? 1 : 0) + prefix.length;
+      textarea.setSelectionRange(selStart, selStart + content.length);
+    });
+  }
+
+  /** Inserts a line break at the cursor, starting a fresh paragraph to type into. */
+  function insertParagraphBreak() {
+    const textarea = excerptRef.current;
+    const value = form.excerpt;
+    const start = textarea?.selectionStart ?? value.length;
+    const end = textarea?.selectionEnd ?? value.length;
+
+    setForm((prev) => ({ ...prev, excerpt: value.slice(0, start) + "\n" + value.slice(end) }));
+
+    requestAnimationFrame(() => {
+      if (!textarea) return;
+      textarea.focus();
+      textarea.setSelectionRange(start + 1, start + 1);
+    });
+  }
+
   function handleInsertLink() {
     const url = window.prompt("Link URL (e.g. https://example.com or /article/other-id):");
     if (!url) return;
-    const label = window.prompt("Link text:", "") || url;
-    const markdown = `[${label}](${url})`;
-
     const textarea = excerptRef.current;
     const start = textarea?.selectionStart ?? form.excerpt.length;
     const end = textarea?.selectionEnd ?? form.excerpt.length;
+    const selected = form.excerpt.slice(start, end);
+    const label = window.prompt("Link text:", selected) || url;
+    const markdown = `[${label}](${url})`;
 
     setForm((prev) => ({
       ...prev,
@@ -184,16 +238,58 @@ export function ArticleFormPage() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between">
-              <label htmlFor="excerpt" className="block text-sm font-medium text-slate-700">
-                Excerpt
-              </label>
+            <label htmlFor="excerpt" className="block text-sm font-medium text-slate-700">
+              Excerpt
+            </label>
+            <div className="mt-1 flex flex-wrap items-center gap-1 rounded-t-md border border-b-0 border-slate-300 bg-slate-50 px-2 py-1.5">
+              <button
+                type="button"
+                onClick={() => insertBlock("# ", "Heading text")}
+                title="Heading 1"
+                className="rounded px-2 py-1 text-xs font-bold text-slate-700 hover:bg-slate-200"
+              >
+                H1
+              </button>
+              <button
+                type="button"
+                onClick={() => insertBlock("## ", "Heading text")}
+                title="Heading 2"
+                className="rounded px-2 py-1 text-xs font-bold text-slate-700 hover:bg-slate-200"
+              >
+                H2
+              </button>
+              <button
+                type="button"
+                onClick={() => insertBlock("### ", "Heading text")}
+                title="Heading 3"
+                className="rounded px-2 py-1 text-xs font-bold text-slate-700 hover:bg-slate-200"
+              >
+                H3
+              </button>
+              <span className="mx-1 h-4 w-px bg-slate-300" aria-hidden="true" />
+              <button
+                type="button"
+                onClick={insertParagraphBreak}
+                title="New paragraph"
+                className="rounded px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+              >
+                ¶
+              </button>
+              <button
+                type="button"
+                onClick={() => wrapSelection("_", "_", "underlined text")}
+                title="Underline"
+                className="rounded px-2 py-1 text-xs font-semibold text-slate-700 underline hover:bg-slate-200"
+              >
+                U
+              </button>
               <button
                 type="button"
                 onClick={handleInsertLink}
-                className="text-xs font-semibold text-red-600 hover:underline"
+                title="Insert link"
+                className="rounded px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200"
               >
-                + Insert link
+                🔗 Link
               </button>
             </div>
             <textarea
@@ -203,13 +299,19 @@ export function ArticleFormPage() {
               rows={14}
               value={form.excerpt}
               onChange={(e) => setForm((prev) => ({ ...prev, excerpt: e.target.value }))}
-              className="mt-1 w-full resize-y rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+              className="w-full resize-y rounded-b-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
             />
             <p className="mt-1 text-xs text-slate-400">
               The article page shows only the first 2 lines as a preview — write as much as you
-              like here for search engines and AI crawlers to index. To link text, select "+
-              Insert link" or type it manually as{" "}
-              <code className="rounded bg-slate-100 px-1 py-0.5">[link text](https://example.com)</code>.
+              like here for search engines and AI crawlers to index. Each line is its own
+              paragraph. Use the toolbar above, or type markup directly: start a line with{" "}
+              <code className="rounded bg-slate-100 px-1 py-0.5">#</code>,{" "}
+              <code className="rounded bg-slate-100 px-1 py-0.5">##</code>, or{" "}
+              <code className="rounded bg-slate-100 px-1 py-0.5">###</code> for a heading, wrap
+              text in <code className="rounded bg-slate-100 px-1 py-0.5">_underscores_</code> to
+              underline, or use{" "}
+              <code className="rounded bg-slate-100 px-1 py-0.5">[link text](https://example.com)</code>{" "}
+              for a link.
             </p>
           </div>
 

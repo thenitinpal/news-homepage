@@ -14,7 +14,7 @@ import {
 import { fetchSavedArticleIds, saveArticle, unsaveArticle } from "../lib/savedArticlesApi";
 import { fetchComments, postComment, type Comment } from "../lib/commentsApi";
 import { formatRelativeTime } from "../utils/time";
-import { stripLinks, renderTextWithLinks } from "../utils/richText";
+import { stripFormatting, renderFormattedBody } from "../utils/richText";
 import { useAuth } from "../context/AuthContext";
 
 export function ArticlePage() {
@@ -100,7 +100,7 @@ export function ArticlePage() {
         <>
           <SEO
             title={article.metaTitle || article.headline}
-            description={stripLinks(article.metaDescription || article.excerpt)}
+            description={stripFormatting(article.metaDescription || article.excerpt)}
             image={article.image}
             type="article"
             publishedTime={article.timestamp}
@@ -113,7 +113,7 @@ export function ArticlePage() {
               "@context": "https://schema.org",
               "@type": "NewsArticle",
               headline: article.metaTitle || article.headline,
-              description: stripLinks(article.metaDescription || article.excerpt),
+              description: stripFormatting(article.metaDescription || article.excerpt),
               image: [article.image],
               datePublished: article.timestamp,
               dateModified: article.timestamp,
@@ -188,7 +188,7 @@ export function ArticlePage() {
               />
 
               <div className="mt-6 text-lg leading-relaxed text-slate-700">
-                {renderTextWithLinks(article.excerpt)}
+                {renderFormattedBody(article.excerpt)}
               </div>
 
               <section className="mt-12 border-t border-slate-200 pt-8">

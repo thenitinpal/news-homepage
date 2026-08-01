@@ -41,39 +41,67 @@ export function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-// Matches [label](url) — same convention as the admin "Insert link" tool. Url must be an
-// absolute http(s) link or a site-relative path, so we never render an unsafe scheme.
-const LINK_PATTERN = /\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g;
+// Inline markup, same convention as the admin toolbar:
+//   [label](url) -> link (url must be absolute http(s) or a site-relative path)
+//   _text_       -> underline
+const LINK_PATTERN = /\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/;
+const UNDERLINE_PATTERN = /_([^_\n]+)_/;
+const INLINE_SOURCE = `${LINK_PATTERN.source}|${UNDERLINE_PATTERN.source}`;
 
-/** Plain-text (meta description, JSON-LD) — drops the markdown link syntax. */
-export function stripLinks(text: string): string {
-  return text.replace(LINK_PATTERN, "$1");
+// Block-level markup: "#", "##", or "### " at the start of a line -> heading, rendered one
+// level below the page's own <h1> (the headline) to keep a valid heading hierarchy.
+const HEADING_PATTERN = /^(#{1,3})\s+(.*)$/;
+
+/** Plain-text (meta description, JSON-LD) — drops all markup, keeps only the words. */
+export function stripFormatting(text: string): string {
+  const flat = text
+    .split("\n")
+    .map((line) => line.trim().replace(HEADING_PATTERN, "$2").trim())
+    .filter(Boolean)
+    .join(" ");
+
+  return flat.replace(new RegExp(INLINE_SOURCE, "g"), (...args) => {
+    const [, linkLabel, , underlineText] = args as (string | undefined)[];
+    return linkLabel ?? underlineText ?? "";
+  });
 }
 
 /**
- * Body HTML — every line becomes its own <p> (matching the article page's paragraph
- * rendering); [label](url) becomes a real <a> tag.
+ * Body HTML — headings become real <h2>/<h3>/<h4> tags, every other line becomes its own
+ * <p> (matching the article page's rendering); [label](url) and _underline_ render for real.
  */
-function linkedHtml(text: string): string {
+function formattedBodyHtml(text: string): string {
   return text
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
-    .map((line) => `<p>${linkedLineHtml(line)}</p>`)
+    .map((line) => {
+      const heading = line.match(HEADING_PATTERN);
+      if (heading) {
+        const level = heading[1].length;
+        const tag = level === 1 ? "h2" : level === 2 ? "h3" : "h4";
+        return `<${tag}>${inlineHtml(heading[2])}</${tag}>`;
+      }
+      return `<p>${inlineHtml(line)}</p>`;
+    })
     .join("\n");
 }
 
-function linkedLineHtml(text: string): string {
-  const pattern = new RegExp(LINK_PATTERN);
+function inlineHtml(text: string): string {
+  const pattern = new RegExp(INLINE_SOURCE, "g");
   let result = "";
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
   while ((match = pattern.exec(text)) !== null) {
     result += escapeHtml(text.slice(lastIndex, match.index));
-    const [full, label, url] = match;
-    const external = url.startsWith("http");
-    result += `<a href="${escapeHtml(url)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(label)}</a>`;
+    const [full, linkLabel, url, underlineText] = match;
+    if (linkLabel !== undefined) {
+      const external = url.startsWith("http");
+      result += `<a href="${escapeHtml(url)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(linkLabel)}</a>`;
+    } else if (underlineText !== undefined) {
+      result += `<u>${escapeHtml(underlineText)}</u>`;
+    }
     lastIndex = match.index + full.length;
   }
   result += escapeHtml(text.slice(lastIndex));
@@ -117,7 +145,7 @@ export function htmlResponse(html: string): Response {
 export function renderArticlePage(article: ArticleRow, pageUrl: string): string {
   const categoryLabel = CATEGORY_LABELS[article.category] ?? article.category;
   const title = article.meta_title || article.headline;
-  const description = stripLinks(article.meta_description || article.excerpt);
+  const description = stripFormatting(article.meta_description || article.excerpt);
   const keywords = [article.focus_keyword, article.secondary_keywords].filter(Boolean).join(", ");
   return pageShell({
     title: `${title} | Pal News`,
@@ -129,7 +157,7 @@ export function renderArticlePage(article: ArticleRow, pageUrl: string): string 
   <h1>${escapeHtml(article.headline)}</h1>
   <time datetime="${article.published_at}">${new Date(article.published_at).toDateString()}</time>
   ${article.image ? `<img src="${escapeHtml(article.image)}" alt="${escapeHtml(article.headline)}" />` : ""}
-  ${linkedHtml(article.excerpt)}
+  ${formattedBodyHtml(article.excerpt)}
 </article>`,
     jsonLd: {
       "@context": "https://schema.org",
@@ -155,7 +183,7 @@ export function renderCategoryPage(
   const items = articles
     .map(
       (a) =>
-        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(stripLinks(a.excerpt))}</p></li>`,
+        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(stripFormatting(a.excerpt))}</p></li>`,
     )
     .join("\n");
 
@@ -173,7 +201,7 @@ export function renderHomePage(
   const items = articles
     .map(
       (a) =>
-        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(stripLinks(a.excerpt))}</p></li>`,
+        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(stripFormatting(a.excerpt))}</p></li>`,
     )
     .join("\n");
 

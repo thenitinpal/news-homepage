@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import type { Article } from "../data/articles";
 import { categoryLabels } from "../data/articles";
 import { formatRelativeTime } from "../utils/time";
-import { stripLinks, truncateText } from "../utils/richText";
+import { stripFormatting, truncateText } from "../utils/richText";
 
 interface ArticleCardProps {
   article: Article;
@@ -61,7 +61,7 @@ export function ArticleCard({ article, compact = false }: ArticleCardProps) {
             {article.headline}
           </h3>
           <p className="mt-1.5 line-clamp-2 text-sm text-slate-600">
-            {truncateText(stripLinks(article.excerpt), 130)}
+            {truncateText(stripFormatting(article.excerpt), 130)}
           </p>
           <p className="mt-2 text-xs font-medium text-slate-400">
             {formatRelativeTime(article.timestamp)}
