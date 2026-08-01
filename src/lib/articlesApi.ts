@@ -15,6 +15,10 @@ interface ArticleRow {
   secondary: boolean;
   trending: boolean;
   most_read: boolean;
+  meta_title: string | null;
+  meta_description: string | null;
+  focus_keyword: string | null;
+  secondary_keywords: string | null;
 }
 
 export interface ArticleInput {
@@ -26,6 +30,10 @@ export interface ArticleInput {
   secondary: boolean;
   trending: boolean;
   mostRead: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string;
 }
 
 function mapRowToArticle(row: ArticleRow): Article {
@@ -40,6 +48,10 @@ function mapRowToArticle(row: ArticleRow): Article {
     secondary: row.secondary,
     trending: row.trending,
     mostRead: row.most_read,
+    metaTitle: row.meta_title ?? undefined,
+    metaDescription: row.meta_description ?? undefined,
+    focusKeyword: row.focus_keyword ?? undefined,
+    secondaryKeywords: row.secondary_keywords ?? undefined,
   };
 }
 
@@ -72,6 +84,10 @@ export async function createArticle(input: ArticleInput): Promise<Article> {
       secondary: input.secondary,
       trending: input.trending,
       most_read: input.mostRead,
+      meta_title: input.metaTitle || null,
+      meta_description: input.metaDescription || null,
+      focus_keyword: input.focusKeyword || null,
+      secondary_keywords: input.secondaryKeywords || null,
     })
     .select()
     .single();
@@ -92,6 +108,10 @@ export async function updateArticle(id: string, input: ArticleInput): Promise<Ar
       secondary: input.secondary,
       trending: input.trending,
       most_read: input.mostRead,
+      meta_title: input.metaTitle || null,
+      meta_description: input.metaDescription || null,
+      focus_keyword: input.focusKeyword || null,
+      secondary_keywords: input.secondaryKeywords || null,
     })
     .eq("id", id)
     .select()

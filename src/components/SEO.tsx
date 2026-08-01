@@ -9,9 +9,18 @@ interface SEOProps {
   type?: "website" | "article";
   publishedTime?: string;
   noindex?: boolean;
+  keywords?: string;
 }
 
-export function SEO({ title, description, image, type = "website", publishedTime, noindex }: SEOProps) {
+export function SEO({
+  title,
+  description,
+  image,
+  type = "website",
+  publishedTime,
+  noindex,
+  keywords,
+}: SEOProps) {
   const fullTitle = `${title} | ${SITE_NAME}`;
   const url = typeof window !== "undefined" ? window.location.href : "";
 
@@ -19,6 +28,7 @@ export function SEO({ title, description, image, type = "website", publishedTime
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={url} />
       {noindex && <meta name="robots" content="noindex, nofollow" />}
 

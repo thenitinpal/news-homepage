@@ -21,6 +21,10 @@ const EMPTY_FORM: ArticleInput = {
   secondary: false,
   trending: false,
   mostRead: false,
+  metaTitle: "",
+  metaDescription: "",
+  focusKeyword: "",
+  secondaryKeywords: "",
 };
 
 export function ArticleFormPage() {
@@ -51,6 +55,10 @@ export function ArticleFormPage() {
           secondary: Boolean(article.secondary),
           trending: Boolean(article.trending),
           mostRead: Boolean(article.mostRead),
+          metaTitle: article.metaTitle ?? "",
+          metaDescription: article.metaDescription ?? "",
+          focusKeyword: article.focusKeyword ?? "",
+          secondaryKeywords: article.secondaryKeywords ?? "",
         });
       })
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load article."))
@@ -164,6 +172,68 @@ export function ArticleFormPage() {
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
             />
           </div>
+
+          <fieldset className="space-y-4 rounded-md border border-slate-200 p-4">
+            <legend className="px-1 text-sm font-semibold text-slate-900">
+              SEO (optional — helps ranking on Google, ChatGPT, Perplexity)
+            </legend>
+
+            <div>
+              <label htmlFor="metaTitle" className="block text-sm font-medium text-slate-700">
+                Meta title
+              </label>
+              <input
+                id="metaTitle"
+                type="text"
+                value={form.metaTitle}
+                onChange={(e) => setForm((prev) => ({ ...prev, metaTitle: e.target.value }))}
+                placeholder="Falls back to headline if left blank"
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="metaDescription" className="block text-sm font-medium text-slate-700">
+                Meta description
+              </label>
+              <textarea
+                id="metaDescription"
+                rows={2}
+                value={form.metaDescription}
+                onChange={(e) => setForm((prev) => ({ ...prev, metaDescription: e.target.value }))}
+                placeholder="Falls back to excerpt if left blank"
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="focusKeyword" className="block text-sm font-medium text-slate-700">
+                Focus keyword
+              </label>
+              <input
+                id="focusKeyword"
+                type="text"
+                value={form.focusKeyword}
+                onChange={(e) => setForm((prev) => ({ ...prev, focusKeyword: e.target.value }))}
+                placeholder="e.g. India Budget 2026"
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="secondaryKeywords" className="block text-sm font-medium text-slate-700">
+                Secondary keywords
+              </label>
+              <input
+                id="secondaryKeywords"
+                type="text"
+                value={form.secondaryKeywords}
+                onChange={(e) => setForm((prev) => ({ ...prev, secondaryKeywords: e.target.value }))}
+                placeholder="Comma-separated, e.g. union budget, tax slabs, finance minister"
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+              />
+            </div>
+          </fieldset>
 
           <div>
             <label htmlFor="image" className="block text-sm font-medium text-slate-700">

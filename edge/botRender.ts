@@ -27,6 +27,10 @@ export interface ArticleRow {
   image: string | null;
   category: string;
   published_at: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  focus_keyword?: string | null;
+  secondary_keywords?: string | null;
 }
 
 export function escapeHtml(value: string): string {
@@ -41,16 +45,18 @@ function pageShell(options: {
   title: string;
   description: string;
   image?: string | null;
+  keywords?: string | null;
   bodyHtml: string;
   jsonLd?: Record<string, unknown>;
 }): string {
-  const { title, description, image, bodyHtml, jsonLd } = options;
+  const { title, description, image, keywords, bodyHtml, jsonLd } = options;
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}" />
+${keywords ? `<meta name="keywords" content="${escapeHtml(keywords)}" />` : ""}
 <meta property="og:site_name" content="Pal News" />
 <meta property="og:title" content="${escapeHtml(title)}" />
 <meta property="og:description" content="${escapeHtml(description)}" />
@@ -71,26 +77,31 @@ export function htmlResponse(html: string): Response {
 
 export function renderArticlePage(article: ArticleRow, pageUrl: string): string {
   const categoryLabel = CATEGORY_LABELS[article.category] ?? article.category;
+  const title = article.meta_title || article.headline;
+  const description = article.meta_description || article.excerpt;
+  const keywords = [article.focus_keyword, article.secondary_keywords].filter(Boolean).join(", ");
   return pageShell({
-    title: `${article.headline} | Pal News`,
-    description: article.excerpt,
+    title: `${title} | Pal News`,
+    description,
     image: article.image,
+    keywords: keywords || null,
     bodyHtml: `<article>
   <p>${escapeHtml(categoryLabel)}</p>
   <h1>${escapeHtml(article.headline)}</h1>
   <time datetime="${article.published_at}">${new Date(article.published_at).toDateString()}</time>
   ${article.image ? `<img src="${escapeHtml(article.image)}" alt="${escapeHtml(article.headline)}" />` : ""}
-  <p>${escapeHtml(article.excerpt)}</p>
+  <p>${escapeHtml(description)}</p>
 </article>`,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
-      headline: article.headline,
-      description: article.excerpt,
+      headline: title,
+      description,
       image: article.image ? [article.image] : undefined,
       datePublished: article.published_at,
       dateModified: article.published_at,
       articleSection: categoryLabel,
+      ...(keywords ? { keywords } : {}),
       author: { "@type": "Organization", name: "Pal News" },
       publisher: { "@type": "Organization", name: "Pal News" },
       mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },

@@ -22,6 +22,13 @@ export interface Article {
   secondary?: boolean;
   trending?: boolean;
   mostRead?: boolean;
+  /** Falls back to `headline` when empty. */
+  metaTitle?: string;
+  /** Falls back to `excerpt` when empty. */
+  metaDescription?: string;
+  focusKeyword?: string;
+  /** Comma-separated. */
+  secondaryKeywords?: string;
 }
 
 export const categoryLabels: Record<Category, string> = {

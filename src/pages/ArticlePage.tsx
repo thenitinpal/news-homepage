@@ -98,22 +98,33 @@ export function ArticlePage() {
       {article && (
         <>
           <SEO
-            title={article.headline}
-            description={article.excerpt}
+            title={article.metaTitle || article.headline}
+            description={article.metaDescription || article.excerpt}
             image={article.image}
             type="article"
             publishedTime={article.timestamp}
+            keywords={
+              [article.focusKeyword, article.secondaryKeywords].filter(Boolean).join(", ") || undefined
+            }
           />
           <StructuredData
             data={{
               "@context": "https://schema.org",
               "@type": "NewsArticle",
-              headline: article.headline,
-              description: article.excerpt,
+              headline: article.metaTitle || article.headline,
+              description: article.metaDescription || article.excerpt,
               image: [article.image],
               datePublished: article.timestamp,
               dateModified: article.timestamp,
               articleSection: categoryLabels[article.category],
+              ...(article.focusKeyword || article.secondaryKeywords
+                ? {
+                    keywords: [article.focusKeyword, ...(article.secondaryKeywords?.split(",") ?? [])]
+                      .map((k) => k?.trim())
+                      .filter(Boolean)
+                      .join(", "),
+                  }
+                : {}),
               author: { "@type": "Organization", name: "Pal News" },
               publisher: {
                 "@type": "Organization",
