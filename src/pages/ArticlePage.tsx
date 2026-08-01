@@ -14,6 +14,7 @@ import {
 import { fetchSavedArticleIds, saveArticle, unsaveArticle } from "../lib/savedArticlesApi";
 import { fetchComments, postComment, type Comment } from "../lib/commentsApi";
 import { formatRelativeTime } from "../utils/time";
+import { stripLinks, renderTextWithLinks } from "../utils/richText";
 import { useAuth } from "../context/AuthContext";
 
 export function ArticlePage() {
@@ -99,7 +100,7 @@ export function ArticlePage() {
         <>
           <SEO
             title={article.metaTitle || article.headline}
-            description={article.metaDescription || article.excerpt}
+            description={stripLinks(article.metaDescription || article.excerpt)}
             image={article.image}
             type="article"
             publishedTime={article.timestamp}
@@ -112,7 +113,7 @@ export function ArticlePage() {
               "@context": "https://schema.org",
               "@type": "NewsArticle",
               headline: article.metaTitle || article.headline,
-              description: article.metaDescription || article.excerpt,
+              description: stripLinks(article.metaDescription || article.excerpt),
               image: [article.image],
               datePublished: article.timestamp,
               dateModified: article.timestamp,
@@ -186,7 +187,9 @@ export function ArticlePage() {
                 className="mt-6 aspect-[16/9] w-full rounded-xl object-cover"
               />
 
-              <p className="mt-6 text-lg leading-relaxed text-slate-700">{article.excerpt}</p>
+              <div className="mt-6 text-lg leading-relaxed text-slate-700">
+                {renderTextWithLinks(article.excerpt)}
+              </div>
 
               <section className="mt-12 border-t border-slate-200 pt-8">
                 <h2 className="text-lg font-bold text-slate-900">

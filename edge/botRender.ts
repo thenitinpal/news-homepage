@@ -41,6 +41,33 @@ export function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+// Matches [label](url) — same convention as the admin "Insert link" tool. Url must be an
+// absolute http(s) link or a site-relative path, so we never render an unsafe scheme.
+const LINK_PATTERN = /\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g;
+
+/** Plain-text (meta description, JSON-LD) — drops the markdown link syntax. */
+export function stripLinks(text: string): string {
+  return text.replace(LINK_PATTERN, "$1");
+}
+
+/** Body HTML — turns [label](url) into a real <a> tag, escaping everything else. */
+function linkedHtml(text: string): string {
+  const pattern = new RegExp(LINK_PATTERN);
+  let result = "";
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(text)) !== null) {
+    result += escapeHtml(text.slice(lastIndex, match.index)).replace(/\n/g, "<br/>");
+    const [full, label, url] = match;
+    const external = url.startsWith("http");
+    result += `<a href="${escapeHtml(url)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(label)}</a>`;
+    lastIndex = match.index + full.length;
+  }
+  result += escapeHtml(text.slice(lastIndex)).replace(/\n/g, "<br/>");
+  return result;
+}
+
 function pageShell(options: {
   title: string;
   description: string;
@@ -78,7 +105,7 @@ export function htmlResponse(html: string): Response {
 export function renderArticlePage(article: ArticleRow, pageUrl: string): string {
   const categoryLabel = CATEGORY_LABELS[article.category] ?? article.category;
   const title = article.meta_title || article.headline;
-  const description = article.meta_description || article.excerpt;
+  const description = stripLinks(article.meta_description || article.excerpt);
   const keywords = [article.focus_keyword, article.secondary_keywords].filter(Boolean).join(", ");
   return pageShell({
     title: `${title} | Pal News`,
@@ -90,7 +117,7 @@ export function renderArticlePage(article: ArticleRow, pageUrl: string): string 
   <h1>${escapeHtml(article.headline)}</h1>
   <time datetime="${article.published_at}">${new Date(article.published_at).toDateString()}</time>
   ${article.image ? `<img src="${escapeHtml(article.image)}" alt="${escapeHtml(article.headline)}" />` : ""}
-  <p>${escapeHtml(description)}</p>
+  <p>${linkedHtml(article.excerpt)}</p>
 </article>`,
     jsonLd: {
       "@context": "https://schema.org",
@@ -116,7 +143,7 @@ export function renderCategoryPage(
   const items = articles
     .map(
       (a) =>
-        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(a.excerpt)}</p></li>`,
+        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(stripLinks(a.excerpt))}</p></li>`,
     )
     .join("\n");
 
@@ -134,7 +161,7 @@ export function renderHomePage(
   const items = articles
     .map(
       (a) =>
-        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(a.excerpt)}</p></li>`,
+        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(stripLinks(a.excerpt))}</p></li>`,
     )
     .join("\n");
 

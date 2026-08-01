@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { Article } from "../data/articles";
 import { categoryLabels } from "../data/articles";
 import { formatRelativeTime } from "../utils/time";
+import { stripLinks } from "../utils/richText";
 
 interface ArticleCardProps {
   article: Article;
@@ -59,7 +60,7 @@ export function ArticleCard({ article, compact = false }: ArticleCardProps) {
           <h3 className="mt-1.5 line-clamp-2 text-base font-bold leading-snug text-slate-900 group-hover:text-red-600">
             {article.headline}
           </h3>
-          <p className="mt-1.5 line-clamp-2 text-sm text-slate-600">{article.excerpt}</p>
+          <p className="mt-1.5 line-clamp-2 text-sm text-slate-600">{stripLinks(article.excerpt)}</p>
           <p className="mt-2 text-xs font-medium text-slate-400">
             {formatRelativeTime(article.timestamp)}
           </p>

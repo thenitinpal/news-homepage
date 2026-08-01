@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   createArticle,
@@ -37,6 +37,7 @@ export function ArticleFormPage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const excerptRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -78,6 +79,29 @@ export function ArticleFormPage() {
     } finally {
       setUploading(false);
     }
+  }
+
+  function handleInsertLink() {
+    const url = window.prompt("Link URL (e.g. https://example.com or /article/other-id):");
+    if (!url) return;
+    const label = window.prompt("Link text:", "") || url;
+    const markdown = `[${label}](${url})`;
+
+    const textarea = excerptRef.current;
+    const start = textarea?.selectionStart ?? form.excerpt.length;
+    const end = textarea?.selectionEnd ?? form.excerpt.length;
+
+    setForm((prev) => ({
+      ...prev,
+      excerpt: prev.excerpt.slice(0, start) + markdown + prev.excerpt.slice(end),
+    }));
+
+    requestAnimationFrame(() => {
+      if (!textarea) return;
+      textarea.focus();
+      const cursor = start + markdown.length;
+      textarea.setSelectionRange(cursor, cursor);
+    });
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -160,17 +184,31 @@ export function ArticleFormPage() {
           </div>
 
           <div>
-            <label htmlFor="excerpt" className="block text-sm font-medium text-slate-700">
-              Excerpt
-            </label>
+            <div className="flex items-center justify-between">
+              <label htmlFor="excerpt" className="block text-sm font-medium text-slate-700">
+                Excerpt
+              </label>
+              <button
+                type="button"
+                onClick={handleInsertLink}
+                className="text-xs font-semibold text-red-600 hover:underline"
+              >
+                + Insert link
+              </button>
+            </div>
             <textarea
               id="excerpt"
+              ref={excerptRef}
               required
-              rows={3}
+              rows={14}
               value={form.excerpt}
               onChange={(e) => setForm((prev) => ({ ...prev, excerpt: e.target.value }))}
-              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+              className="mt-1 w-full resize-y rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
             />
+            <p className="mt-1 text-xs text-slate-400">
+              To link text, select "+ Insert link" or type it manually as{" "}
+              <code className="rounded bg-slate-100 px-1 py-0.5">[link text](https://example.com)</code>.
+            </p>
           </div>
 
           <fieldset className="space-y-4 rounded-md border border-slate-200 p-4">
