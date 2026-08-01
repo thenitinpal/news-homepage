@@ -9,29 +9,27 @@ export function stripLinks(text: string): string {
   return text.replace(LINK_PATTERN, "$1");
 }
 
-/** Full body rendering — every line becomes its own paragraph; [label](url) becomes a real link. */
-export function renderTextWithLinks(text: string): ReactNode {
-  return text
+/**
+ * Single flowing block of inline nodes (line breaks collapsed to spaces) — turns [label](url)
+ * into a real link. Meant to sit inside a container with `line-clamp-*`, since CSS line-clamp
+ * only reliably truncates a single block of inline content, not separate <p> children.
+ */
+export function renderInlineWithLinks(text: string): ReactNode[] {
+  const flat = text
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
-    .map((paragraph, index) => (
-      <p key={index} className={index > 0 ? "mt-4" : undefined}>
-        {renderParagraph(paragraph)}
-      </p>
-    ));
-}
+    .join(" ");
 
-function renderParagraph(paragraph: string): ReactNode[] {
   const nodes: ReactNode[] = [];
   const pattern = new RegExp(LINK_PATTERN);
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let key = 0;
 
-  while ((match = pattern.exec(paragraph)) !== null) {
+  while ((match = pattern.exec(flat)) !== null) {
     if (match.index > lastIndex) {
-      nodes.push(paragraph.slice(lastIndex, match.index));
+      nodes.push(flat.slice(lastIndex, match.index));
     }
     const [full, label, url] = match;
     const isExternal = url.startsWith("http");
@@ -48,8 +46,8 @@ function renderParagraph(paragraph: string): ReactNode[] {
     lastIndex = match.index + full.length;
   }
 
-  if (lastIndex < paragraph.length) {
-    nodes.push(paragraph.slice(lastIndex));
+  if (lastIndex < flat.length) {
+    nodes.push(flat.slice(lastIndex));
   }
 
   return nodes;

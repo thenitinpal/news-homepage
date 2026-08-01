@@ -14,7 +14,7 @@ import {
 import { fetchSavedArticleIds, saveArticle, unsaveArticle } from "../lib/savedArticlesApi";
 import { fetchComments, postComment, type Comment } from "../lib/commentsApi";
 import { formatRelativeTime } from "../utils/time";
-import { stripLinks, renderTextWithLinks } from "../utils/richText";
+import { stripLinks, renderInlineWithLinks } from "../utils/richText";
 import { useAuth } from "../context/AuthContext";
 
 export function ArticlePage() {
@@ -187,9 +187,9 @@ export function ArticlePage() {
                 className="mt-6 aspect-[16/9] w-full rounded-xl object-cover"
               />
 
-              <div className="mt-6 text-lg leading-relaxed text-slate-700">
-                {renderTextWithLinks(article.excerpt)}
-              </div>
+              <p className="mt-6 line-clamp-2 text-lg leading-relaxed text-slate-700">
+                {renderInlineWithLinks(article.excerpt)}
+              </p>
 
               <section className="mt-12 border-t border-slate-200 pt-8">
                 <h2 className="text-lg font-bold text-slate-900">
