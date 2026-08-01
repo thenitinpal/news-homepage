@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { Sidebar } from "../components/Sidebar";
+import { ShareButtons } from "../components/ShareButtons";
 import { SEO, StructuredData } from "../components/SEO";
 import { categoryLabels, type Article } from "../data/articles";
 import {
@@ -190,6 +191,11 @@ export function ArticlePage() {
               <div className="mt-6 text-lg leading-relaxed text-slate-700">
                 {renderFormattedBody(article.excerpt)}
               </div>
+
+              <ShareButtons
+                url={typeof window !== "undefined" ? window.location.href : ""}
+                title={article.metaTitle || article.headline}
+              />
 
               <section className="mt-12 border-t border-slate-200 pt-8">
                 <h2 className="text-lg font-bold text-slate-900">
