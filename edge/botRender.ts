@@ -51,31 +51,32 @@ export function stripLinks(text: string): string {
 }
 
 /**
- * Body HTML — single flowing paragraph (line breaks collapsed to spaces), same as the
- * clamped preview real visitors see; [label](url) becomes a real <a> tag. Keeping this
- * structurally identical to the client-rendered DOM (full text, one paragraph, same links)
- * matters — bots should never receive more or different content than a real visitor's DOM has.
+ * Body HTML — every line becomes its own <p> (matching the article page's paragraph
+ * rendering); [label](url) becomes a real <a> tag.
  */
 function linkedHtml(text: string): string {
-  const flat = text
+  return text
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
-    .join(" ");
+    .map((line) => `<p>${linkedLineHtml(line)}</p>`)
+    .join("\n");
+}
 
+function linkedLineHtml(text: string): string {
   const pattern = new RegExp(LINK_PATTERN);
   let result = "";
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = pattern.exec(flat)) !== null) {
-    result += escapeHtml(flat.slice(lastIndex, match.index));
+  while ((match = pattern.exec(text)) !== null) {
+    result += escapeHtml(text.slice(lastIndex, match.index));
     const [full, label, url] = match;
     const external = url.startsWith("http");
     result += `<a href="${escapeHtml(url)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(label)}</a>`;
     lastIndex = match.index + full.length;
   }
-  result += escapeHtml(flat.slice(lastIndex));
+  result += escapeHtml(text.slice(lastIndex));
   return result;
 }
 
@@ -128,7 +129,7 @@ export function renderArticlePage(article: ArticleRow, pageUrl: string): string 
   <h1>${escapeHtml(article.headline)}</h1>
   <time datetime="${article.published_at}">${new Date(article.published_at).toDateString()}</time>
   ${article.image ? `<img src="${escapeHtml(article.image)}" alt="${escapeHtml(article.headline)}" />` : ""}
-  <p>${linkedHtml(article.excerpt)}</p>
+  ${linkedHtml(article.excerpt)}
 </article>`,
     jsonLd: {
       "@context": "https://schema.org",
