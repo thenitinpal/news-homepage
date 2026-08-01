@@ -50,21 +50,30 @@ export function stripLinks(text: string): string {
   return text.replace(LINK_PATTERN, "$1");
 }
 
-/** Body HTML — turns [label](url) into a real <a> tag, escaping everything else. */
+/** Body HTML — every line becomes its own <p>; [label](url) becomes a real <a> tag. */
 function linkedHtml(text: string): string {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${linkedLineHtml(line)}</p>`)
+    .join("\n");
+}
+
+function linkedLineHtml(text: string): string {
   const pattern = new RegExp(LINK_PATTERN);
   let result = "";
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
   while ((match = pattern.exec(text)) !== null) {
-    result += escapeHtml(text.slice(lastIndex, match.index)).replace(/\n/g, "<br/>");
+    result += escapeHtml(text.slice(lastIndex, match.index));
     const [full, label, url] = match;
     const external = url.startsWith("http");
     result += `<a href="${escapeHtml(url)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(label)}</a>`;
     lastIndex = match.index + full.length;
   }
-  result += escapeHtml(text.slice(lastIndex)).replace(/\n/g, "<br/>");
+  result += escapeHtml(text.slice(lastIndex));
   return result;
 }
 
@@ -117,7 +126,7 @@ export function renderArticlePage(article: ArticleRow, pageUrl: string): string 
   <h1>${escapeHtml(article.headline)}</h1>
   <time datetime="${article.published_at}">${new Date(article.published_at).toDateString()}</time>
   ${article.image ? `<img src="${escapeHtml(article.image)}" alt="${escapeHtml(article.headline)}" />` : ""}
-  <p>${linkedHtml(article.excerpt)}</p>
+  ${linkedHtml(article.excerpt)}
 </article>`,
     jsonLd: {
       "@context": "https://schema.org",

@@ -9,13 +9,17 @@ export function stripLinks(text: string): string {
   return text.replace(LINK_PATTERN, "$1");
 }
 
-/** Full body rendering — turns [label](url) into a real, clickable link. */
+/** Full body rendering — every line becomes its own paragraph; [label](url) becomes a real link. */
 export function renderTextWithLinks(text: string): ReactNode {
-  return text.split(/\n{2,}/).map((paragraph, index) => (
-    <p key={index} className={index > 0 ? "mt-4" : undefined}>
-      {renderParagraph(paragraph)}
-    </p>
-  ));
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((paragraph, index) => (
+      <p key={index} className={index > 0 ? "mt-4" : undefined}>
+        {renderParagraph(paragraph)}
+      </p>
+    ));
 }
 
 function renderParagraph(paragraph: string): ReactNode[] {
@@ -27,8 +31,7 @@ function renderParagraph(paragraph: string): ReactNode[] {
 
   while ((match = pattern.exec(paragraph)) !== null) {
     if (match.index > lastIndex) {
-      nodes.push(...withLineBreaks(paragraph.slice(lastIndex, match.index), key));
-      key += 1;
+      nodes.push(paragraph.slice(lastIndex, match.index));
     }
     const [full, label, url] = match;
     const isExternal = url.startsWith("http");
@@ -46,15 +49,8 @@ function renderParagraph(paragraph: string): ReactNode[] {
   }
 
   if (lastIndex < paragraph.length) {
-    nodes.push(...withLineBreaks(paragraph.slice(lastIndex), key));
+    nodes.push(paragraph.slice(lastIndex));
   }
 
   return nodes;
-}
-
-function withLineBreaks(text: string, keyBase: number): ReactNode[] {
-  const lines = text.split("\n");
-  return lines.flatMap((line, i) =>
-    i === 0 ? [line] : [<br key={`br-${keyBase}-${i}`} />, line],
-  );
 }

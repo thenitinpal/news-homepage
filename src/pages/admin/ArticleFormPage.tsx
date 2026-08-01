@@ -206,7 +206,8 @@ export function ArticleFormPage() {
               className="mt-1 w-full resize-y rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
             />
             <p className="mt-1 text-xs text-slate-400">
-              To link text, select "+ Insert link" or type it manually as{" "}
+              Press Enter to start a new paragraph — each line becomes its own paragraph on the
+              article page. To link text, select "+ Insert link" or type it manually as{" "}
               <code className="rounded bg-slate-100 px-1 py-0.5">[link text](https://example.com)</code>.
             </p>
           </div>
