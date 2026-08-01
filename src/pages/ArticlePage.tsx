@@ -126,7 +126,7 @@ export function ArticlePage() {
                       .join(", "),
                   }
                 : {}),
-              author: { "@type": "Organization", name: "Pal News" },
+              author: { "@type": "Person", name: "Nitin Pal" },
               publisher: {
                 "@type": "Organization",
                 name: "Pal News",

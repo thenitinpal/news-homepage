@@ -1,6 +1,6 @@
 // Cloudflare Worker entry point (Workers + static assets model). This single
 // script does three things:
-//   1. Serves /sitemap.xml dynamically from Supabase.
+//   1. Serves /sitemap.xml and /sitemap-news.xml (last 48h only) dynamically from Supabase.
 //   2. Serves pre-rendered HTML to known AI/search crawlers on "/", "/article/:id",
 //      and "/category/:slug" — see edge/botRender.ts for the shared logic also
 //      used by the Vercel version (middleware.ts).
@@ -17,7 +17,7 @@ import {
   renderHomePage,
   type ArticleRow,
 } from "../edge/botRender";
-import { buildSitemapXml } from "../edge/sitemap";
+import { buildSitemapXml, buildNewsSitemapXml } from "../edge/sitemap";
 
 interface Env {
   ASSETS: { fetch: (request: Request) => Promise<Response> };
@@ -39,6 +39,26 @@ async function handleSitemap(env: Env, origin: string): Promise<Response> {
     headers: {
       "Content-Type": "application/xml",
       "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400",
+    },
+  });
+}
+
+async function handleNewsSitemap(env: Env, origin: string): Promise<Response> {
+  if (!env.VITE_SUPABASE_URL || !env.VITE_SUPABASE_ANON_KEY) {
+    return new Response("Missing Supabase configuration", { status: 500 });
+  }
+  const supabase = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY);
+  const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+  const { data: articles } = await supabase
+    .from("articles")
+    .select("id, headline, published_at")
+    .gte("published_at", cutoff)
+    .order("published_at", { ascending: false });
+
+  return new Response(buildNewsSitemapXml(origin, articles ?? []), {
+    headers: {
+      "Content-Type": "application/xml",
+      "Cache-Control": "s-maxage=300, stale-while-revalidate=600",
     },
   });
 }
@@ -90,6 +110,10 @@ export default {
 
     if (url.pathname === "/sitemap.xml") {
       return handleSitemap(env, url.origin);
+    }
+
+    if (url.pathname === "/sitemap-news.xml") {
+      return handleNewsSitemap(env, url.origin);
     }
 
     const userAgent = request.headers.get("user-agent") ?? "";

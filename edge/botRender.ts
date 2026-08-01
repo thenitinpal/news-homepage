@@ -141,7 +141,7 @@ export function renderArticlePage(article: ArticleRow, pageUrl: string): string 
       dateModified: article.published_at,
       articleSection: categoryLabel,
       ...(keywords ? { keywords } : {}),
-      author: { "@type": "Organization", name: "Pal News" },
+      author: { "@type": "Person", name: "Nitin Pal" },
       publisher: { "@type": "Organization", name: "Pal News" },
       mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
     },

@@ -6,3 +6,4 @@ Disallow: /for-you
 Disallow: /search
 
 Sitemap: /sitemap.xml
+Sitemap: /sitemap-news.xml
