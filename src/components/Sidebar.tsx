@@ -30,7 +30,10 @@ function TextList({ title, articles }: { title: string; articles: Article[] }) {
 
 export function Sidebar({ trending, mostRead }: SidebarProps) {
   return (
-    <aside aria-label="Sidebar" className="w-full shrink-0 space-y-8 lg:w-80">
+    <aside
+      aria-label="Sidebar"
+      className="w-full shrink-0 space-y-8 lg:w-80 lg:border-l lg:border-slate-200 lg:pl-8"
+    >
       <TextList title="Trending Now" articles={trending} />
       <TextList title="Most Read" articles={mostRead} />
       <div className="space-y-4">
