@@ -14,7 +14,7 @@ import {
 import { fetchSavedArticleIds, saveArticle, unsaveArticle } from "../lib/savedArticlesApi";
 import { fetchComments, postComment, type Comment } from "../lib/commentsApi";
 import { formatRelativeTime } from "../utils/time";
-import { stripLinks, renderInlineWithLinks } from "../utils/richText";
+import { stripLinks, truncateText } from "../utils/richText";
 import { useAuth } from "../context/AuthContext";
 
 export function ArticlePage() {
@@ -188,7 +188,7 @@ export function ArticlePage() {
               />
 
               <p className="mt-6 line-clamp-2 text-lg leading-relaxed text-slate-700">
-                {renderInlineWithLinks(article.excerpt)}
+                {truncateText(stripLinks(article.excerpt))}
               </p>
 
               <section className="mt-12 border-t border-slate-200 pt-8">
