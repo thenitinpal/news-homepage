@@ -40,6 +40,13 @@ export function ContactPage() {
           Questions, feedback, corrections, or story tips — send us a message and our team will
           get back to you.
         </p>
+        <p className="mt-2 leading-relaxed text-slate-600">
+          You can also email us directly at{" "}
+          <a href="mailto:support@thepalmedias.com" className="font-semibold text-red-600 hover:underline">
+            support@thepalmedias.com
+          </a>
+          .
+        </p>
 
         {submitted ? (
           <div className="mt-8 rounded-lg border border-green-200 bg-green-50 p-6 text-green-800">
