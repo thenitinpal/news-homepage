@@ -9,6 +9,7 @@ import {
 } from "../../lib/articlesApi";
 import { categoryLabels, type Category } from "../../data/articles";
 import { SEO } from "../../components/SEO";
+import { renderFormattedBody } from "../../utils/richText";
 
 const CATEGORIES = Object.keys(categoryLabels) as Category[];
 
@@ -313,6 +314,19 @@ export function ArticleFormPage() {
               <code className="rounded bg-slate-100 px-1 py-0.5">[link text](https://example.com)</code>{" "}
               for a link.
             </p>
+
+            <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 p-4">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Preview — how this looks on the published article page
+              </p>
+              {form.excerpt.trim() ? (
+                <div className="text-lg leading-relaxed text-slate-700">
+                  {renderFormattedBody(form.excerpt)}
+                </div>
+              ) : (
+                <p className="text-sm italic text-slate-400">Nothing typed yet.</p>
+              )}
+            </div>
           </div>
 
           <fieldset className="space-y-4 rounded-md border border-slate-200 p-4">
