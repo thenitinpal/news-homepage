@@ -36,6 +36,7 @@ export function ArticleFormPage() {
   const [form, setForm] = useState<ArticleInput>(EMPTY_FORM);
   const [loading, setLoading] = useState(isEditing);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const excerptRef = useRef<HTMLTextAreaElement>(null);
@@ -71,12 +72,12 @@ export function ArticleFormPage() {
     const file = event.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    setError(null);
+    setUploadError(null);
     try {
       const url = await uploadArticleImage(file);
       setForm((prev) => ({ ...prev, image: url }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to upload image.");
+      setUploadError(err instanceof Error ? err.message : "Failed to upload image.");
     } finally {
       setUploading(false);
     }
@@ -403,6 +404,7 @@ export function ArticleFormPage() {
               className="mt-1 w-full text-sm text-slate-600"
             />
             {uploading && <p className="mt-1 text-xs text-slate-500">Uploading…</p>}
+            {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
             {form.image && (
               <img
                 src={form.image}
