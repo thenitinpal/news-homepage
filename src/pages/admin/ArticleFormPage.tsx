@@ -13,6 +13,43 @@ import { renderFormattedBody } from "../../utils/richText";
 
 const CATEGORIES = Object.keys(categoryLabels) as Category[];
 
+const RECOMMENDED_MIN_WIDTH = 1280;
+const RECOMMENDED_RATIO = 16 / 9;
+const RATIO_TOLERANCE = 0.15;
+
+/** Reads a file's pixel dimensions client-side and flags it if it's below the recommended
+ * 1280x720 (16:9, YouTube-thumbnail-ratio) minimum — catches blurry/oddly-cropped cover
+ * images before publishing instead of after. */
+function checkImageDimensions(file: File): Promise<string | null> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const { naturalWidth: width, naturalHeight: height } = img;
+      const ratio = width / height;
+      const ratioOff = Math.abs(ratio - RECOMMENDED_RATIO) / RECOMMENDED_RATIO;
+
+      if (width < RECOMMENDED_MIN_WIDTH) {
+        resolve(
+          `This image is ${width}×${height}px — below the recommended 1280×720 minimum. It may look blurry when displayed larger on the site.`,
+        );
+      } else if (ratioOff > RATIO_TOLERANCE) {
+        resolve(
+          `This image is ${width}×${height}px, not close to the recommended 16:9 ratio — it may get cropped oddly when displayed.`,
+        );
+      } else {
+        resolve(null);
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(null);
+    };
+    img.src = url;
+  });
+}
+
 const EMPTY_FORM: ArticleInput = {
   category: "india",
   headline: "",
@@ -37,6 +74,7 @@ export function ArticleFormPage() {
   const [loading, setLoading] = useState(isEditing);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [imageSizeWarning, setImageSizeWarning] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const excerptRef = useRef<HTMLTextAreaElement>(null);
@@ -73,8 +111,13 @@ export function ArticleFormPage() {
     if (!file) return;
     setUploading(true);
     setUploadError(null);
+    setImageSizeWarning(null);
     try {
-      const url = await uploadArticleImage(file);
+      const [warning, url] = await Promise.all([
+        checkImageDimensions(file),
+        uploadArticleImage(file),
+      ]);
+      setImageSizeWarning(warning);
       setForm((prev) => ({ ...prev, image: url }));
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Failed to upload image.");
@@ -405,6 +448,9 @@ export function ArticleFormPage() {
             />
             {uploading && <p className="mt-1 text-xs text-slate-500">Uploading…</p>}
             {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
+            {imageSizeWarning && (
+              <p className="mt-1 text-xs text-amber-600">⚠ {imageSizeWarning}</p>
+            )}
             {form.image && (
               <img
                 src={form.image}
