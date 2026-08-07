@@ -126,6 +126,11 @@ export async function deleteArticle(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function deleteArticles(ids: string[]): Promise<void> {
+  const { error } = await supabase.from("articles").delete().in("id", ids);
+  if (error) throw error;
+}
+
 export async function uploadArticleImage(file: File): Promise<string> {
   const extension = file.name.split(".").pop() ?? "jpg";
   const path = `${crypto.randomUUID()}.${extension}`;
