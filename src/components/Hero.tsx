@@ -16,7 +16,7 @@ export function Hero({ featured, secondary }: HeroProps) {
         <div className="aspect-[16/9] overflow-hidden rounded-2xl bg-slate-100">
           <img
             src={featured.image}
-            alt=""
+            alt={featured.headline}
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         </div>
@@ -42,7 +42,7 @@ export function Hero({ featured, secondary }: HeroProps) {
           >
             <img
               src={article.image}
-              alt=""
+              alt={article.headline}
               className="h-16 w-20 shrink-0 rounded-md object-cover"
               loading="lazy"
             />

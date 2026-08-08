@@ -19,7 +19,7 @@ export function ArticleCard({ article, compact = false }: ArticleCardProps) {
       >
         <img
           src={article.image}
-          alt=""
+          alt={article.headline}
           width={80}
           height={64}
           className="h-16 w-20 shrink-0 rounded-md object-cover"
@@ -41,7 +41,7 @@ export function ArticleCard({ article, compact = false }: ArticleCardProps) {
         <div className="aspect-[16/10] overflow-hidden bg-slate-100">
           <img
             src={article.image}
-            alt=""
+            alt={article.headline}
             width={800}
             height={500}
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"

@@ -85,7 +85,7 @@ async function handleBotRequest(url: URL, env: Env): Promise<Response | null> {
     if (!label) return null;
     const { data: articles } = await supabase
       .from("articles")
-      .select("id, headline, excerpt")
+      .select("id, headline, excerpt, image")
       .eq("category", slug)
       .order("published_at", { ascending: false })
       .limit(30);
@@ -95,7 +95,7 @@ async function handleBotRequest(url: URL, env: Env): Promise<Response | null> {
   if (url.pathname === "/") {
     const { data: articles } = await supabase
       .from("articles")
-      .select("id, headline, excerpt")
+      .select("id, headline, excerpt, image")
       .order("published_at", { ascending: false })
       .limit(30);
     return htmlResponse(renderHomePage(articles ?? [], url.origin));

@@ -50,7 +50,7 @@ export default async function middleware(request: Request) {
 
     const { data: articles } = await supabase
       .from("articles")
-      .select("id, headline, excerpt")
+      .select("id, headline, excerpt, image")
       .eq("category", slug)
       .order("published_at", { ascending: false })
       .limit(30);
@@ -61,7 +61,7 @@ export default async function middleware(request: Request) {
   if (url.pathname === "/") {
     const { data: articles } = await supabase
       .from("articles")
-      .select("id, headline, excerpt")
+      .select("id, headline, excerpt, image")
       .order("published_at", { ascending: false })
       .limit(30);
 

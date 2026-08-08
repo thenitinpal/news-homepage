@@ -178,12 +178,12 @@ export function renderArticlePage(article: ArticleRow, pageUrl: string): string 
 
 export function renderCategoryPage(
   label: string,
-  articles: Pick<ArticleRow, "id" | "headline" | "excerpt">[],
+  articles: Pick<ArticleRow, "id" | "headline" | "excerpt" | "image">[],
 ): string {
   const items = articles
     .map(
       (a) =>
-        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(stripFormatting(a.excerpt))}</p></li>`,
+        `<li><a href="/article/${a.id}">${a.image ? `<img src="${escapeHtml(a.image)}" alt="${escapeHtml(a.headline)}" />` : ""}${escapeHtml(a.headline)}</a><p>${escapeHtml(stripFormatting(a.excerpt))}</p></li>`,
     )
     .join("\n");
 
@@ -195,13 +195,13 @@ export function renderCategoryPage(
 }
 
 export function renderHomePage(
-  articles: Pick<ArticleRow, "id" | "headline" | "excerpt">[],
+  articles: Pick<ArticleRow, "id" | "headline" | "excerpt" | "image">[],
   origin: string,
 ): string {
   const items = articles
     .map(
       (a) =>
-        `<li><a href="/article/${a.id}">${escapeHtml(a.headline)}</a><p>${escapeHtml(stripFormatting(a.excerpt))}</p></li>`,
+        `<li><a href="/article/${a.id}">${a.image ? `<img src="${escapeHtml(a.image)}" alt="${escapeHtml(a.headline)}" />` : ""}${escapeHtml(a.headline)}</a><p>${escapeHtml(stripFormatting(a.excerpt))}</p></li>`,
     )
     .join("\n");
 
